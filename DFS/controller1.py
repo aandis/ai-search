@@ -41,7 +41,7 @@ def singleAgentSearch(board):
 	return (exploredNodes,searchQueue,shortestPath)
 
 def dfsSearch(board, musketeerPosition):
-	""" Performs a dfs search on the game board.
+	""" Perform a dfs search on the game board.
 
 	:param board: The game board.
 	:param musketeerPosition: The [row, col] of musketeer on the board.
@@ -53,9 +53,9 @@ def dfsSearch(board, musketeerPosition):
 	# List of nodes visited and the position from which they were visited.
 	# Used for calculating shortest path.
 	visited = [[False for i in range(totalRows)] for i in range(totalColumns)]
+	goalFound = False
 
 	searchQueue.append(musketeerPosition)
-
 	while len(searchQueue) != 0:
 		[row, col] = searchQueue[0]
 		exploredNodes.append([row, col])
@@ -66,6 +66,7 @@ def dfsSearch(board, musketeerPosition):
 		if board[row][col] == DIAMOND:
 			# Diamong found! Append the remaining queue as part of this
 			# iteration and break.
+			goalFound = True
 			iterativeSearchQueue.append(searchQueue[:])
 			break
 		neighbours = []
@@ -94,9 +95,7 @@ def dfsSearch(board, musketeerPosition):
 		searchQueue = neighbours + searchQueue
 		iterativeSearchQueue.append(searchQueue[:])
 
-	if len(searchQueue) != 0:
-		# Search queue non empty! We stopped because we found the
-		# diamond. Yay! Let's find shortest path now.
+	if goalFound:
 		shortestPath = getShortestPath(visited, musketeerPosition, [row, col])
 		b = getShortestPathRecursive(visited, musketeerPosition, [row, col])
 		assert shortestPath == b # becuase why not?
@@ -104,16 +103,19 @@ def dfsSearch(board, musketeerPosition):
 	return (exploredNodes, iterativeSearchQueue, shortestPath)
 
 def getShortestPath(visited,  musketeerPosition, diamondPosition):
-	""" Returns shortest path from diamondPosition to musketeerPosition.
+	""" Return shortest path from diamondPosition to musketeerPosition.
 	We essentially backtrace from diamondPosition to musketeerPosition
-	using the visited list. This should only be called if diamond is found
-	else it might get stuck for time and beyond.
+	using the visited list.
 
 	:param visited: The visited 2d list
 	:param musketeerPosition: The [row, col] of musketeer on the board.
 	:param diamondPosition: The [row, col] of the found diamond on the board. 
 	:returns: A list containing the shortest path from musketeer's position
 		to diamond's position.
+
+	-- note::
+		This should only be called if diamond is found else it might get stuck
+		for time and beyond.
 
 	"""
 	shortestPath = []
@@ -128,17 +130,19 @@ def getShortestPath(visited,  musketeerPosition, diamondPosition):
 	return shortestPath[::-1]
 
 def getShortestPathRecursive(visited, musketeerPosition, diamondPosition):
-	""" Recursive version of getShortestPath function which backtraces 
-	using recursion. This should only be called if diamond is found
-	else it will get stuck and only stop in the year 3052 which as we
-	all know, is doomsday. Stopping this function would be the least of 
-	your worries by then. Hopefully.
+	""" Recursive version of getShortestPath.
 
 	:param visited: The visited 2d list
 	:param musketeerPosition: The [row, col] of musketeer on the board.
 	:param diamondPosition: The [row, col] of the found diamond on the board. 
 	:returns: A list containing the shortest path from musketeer's position
 		to diamond's position.
+
+	-- note::
+		This should only be called if diamond is found else it will get
+		stuck and only stop in the year 3052 which as we all know, is doomsday. 
+		Stopping this function would be the least of your worries by then. 
+		Hopefully.
 
 	"""
 	[x, y] = diamondPosition
