@@ -31,8 +31,8 @@ def singleAgentSearch(board):
 
 	:param board: The square game board which is a 2d list of integers.
 	:returns: A tuple containing exploredNodes, searchQueue and the shortestPath
-	corresponding to the musketeer which finds the diamond in the shortest 
-	number of steps.
+		corresponding to the musketeer which finds the diamond in the shortest 
+		number of steps.
 
 	"""
 	exploredNodes = []
