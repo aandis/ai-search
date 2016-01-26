@@ -41,12 +41,10 @@ def singleAgentSearch(board):
 
 	(musketeerPositions, diamondPosition) = getMusketeerAndDiamondPositions(board)
 	if len(musketeerPositions) == 0:
-		print "Where are my musketeers? How do I play? ANSWER ME!"
-		return
+		raise MusketeerNotFound
 
 	if len(diamondPosition) == 0:
-		print "Is there no more diamond left in this world for me to play? :("
-		return
+		raise DiamondNotFound
 
 	for i in range(len(musketeerPositions)):
 		(newExploredNodes, newSearchQueue, newShortestPath) = \
@@ -220,6 +218,13 @@ def getShortestPath(visited,  musketeerPosition, diamondPosition):
 
 def hasSoldierOrDiamond(thing):
 	return (thing == SOLDIER or thing == DIAMOND)
+
+
+class MusketeerNotFound(Exception):
+    pass
+
+class DiamondNotFound(Exception):
+	pass
 
 # board = [
 # 			[0, 2, 2, 2, 1],
