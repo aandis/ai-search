@@ -32,9 +32,7 @@ def singleAgentSearch(board):
 		number of steps.
 
 	"""
-	exploredNodes = []
-	searchQueue  = []
-	shortestPath = []
+	exploredNodes, searchQueue, shortestPath  = [], [], []
 
 	(musketeerPositions, diamondPosition) = getMusketeerAndDiamondPositions(board)
 	if len(musketeerPositions) == 0:
@@ -43,44 +41,45 @@ def singleAgentSearch(board):
 	if len(diamondPosition) == 0:
 		raise NoDiamondFound
 
-	(exploredNodes, searchQueue, shortestPath) = \
-		idaStar(board, musketeerPositions[1], diamondPosition)
-	# for i in range(len(musketeerPositions)):
-	# 	(newExploredNodes, newSearchQueue, newShortestPath) = \
-	# 		idaStar(board, musketeerPositions[i], diamondPosition)
+	# (exploredNodes, searchQueue, shortestPath) = \
+	# 	idaStar(board, musketeerPositions[1], diamondPosition)
+	for i in range(len(musketeerPositions)):
+		(newExploredNodes, newSearchQueue, newShortestPath) = \
+			idaStar(board, musketeerPositions[i], diamondPosition)
 
- #        if  shortestPath == [] \
- #        or  (
-	# 			len(newShortestPath) < len(shortestPath) \
-	# 			and len(newShortestPath) > 0
- #            ):
-	# 		(exploredNodes, searchQueue, shortestPath) = \
-	# 			(newExploredNodes, newSearchQueue, newShortestPath)
+		if  shortestPath == [] \
+		or  (
+				len(newShortestPath) < len(shortestPath) \
+				and len(newShortestPath) > 0
+			):
+			(exploredNodes, searchQueue, shortestPath) = \
+				(newExploredNodes, newSearchQueue, newShortestPath)
 
 	return (exploredNodes,searchQueue,shortestPath)
 
 def idaStar(board, musketeerPosition, diamondPosition):
 	""" Call idaStarIteration iteratively.
 
-	Aggregates exploredNodes, searchQueue of each iteration of the search.
+	Call idaStarIteration for each iteration with a new bound and aggregate 
+	exploredNodes, searchQueue different iterations of the search.
 
 	:param board: The game board.
 	:param musketeerPosition: The [row, col] of musketeer on the board.
-	:param bound: The current threshold on f value to consider for 
-		this iteration.
-	:returns: A tuple containing exploredNodes, searchQueue, shortestPath
+	:param diamondPosition: The [row, col] of diamond on the board.
+	:returns: A tuple containing exploredNodes, searchQueue, shortestPath.
 
 	"""
 	exploredNodes, searchQueue = [], []
 
+	# Use heuristic value from start node as the initial bound.
 	bound = getHeuristicValue(musketeerPosition, diamondPosition)
 
 	while True:
 		(newExploredNodes, newSearchQueue, shortestPath, nextBound) = \
 			idaStarIteration(board, musketeerPosition, diamondPosition, bound)
 
-		exploredNodes.append(newExploredNodes)
-		searchQueue.append(newSearchQueue)
+		exploredNodes.extend(newExploredNodes)
+		searchQueue.extend(newSearchQueue)
 
 		if len(shortestPath) == 0:
 			# Increase the bound and restart search.
@@ -92,14 +91,18 @@ def idaStar(board, musketeerPosition, diamondPosition):
 	return exploredNodes, searchQueue, shortestPath
 
 def idaStarIteration(board, musketeerPosition, diamondPosition, bound):
-	""" Perform a single iteration of IDA* search on the game board.
+	""" Perform a single iteration of IDA* search on the game board with
+	the given bound.
 
 	:param board: The game board.
 	:param musketeerPosition: The [row, col] of musketeer on the board.
-	:param bound: The current threshold on f value to consider for 
-		this iteration.
+	:param diamondPosition: The [row, col] of diamond on the board.
+	:param bound: The threshold on f value for this iteration. Neighbour
+		nodes having f value greater than this aren't explored in this
+		iteration.
 	:returns: A tuple containing exploredNodes, searchQueue, shortestPath,
-		and the next higher bound to start with, in the next iteration.
+		and the next higher bound to start with in the next iteration in
+		case the goal isn't found in this iteration.
 
 	"""
 	totalRows = totalColumns = len(board)
@@ -110,13 +113,13 @@ def idaStarIteration(board, musketeerPosition, diamondPosition, bound):
 
 	goalFound = False
 	nextBound = -1
+
 	musketeerNode = Node(
 		musketeerPosition,
 		getHeuristicValue(musketeerPosition, diamondPosition),
-		0 # Cost of getting to start node from start node.
+		0 # g value from start node.
 	)
 	searchQueue.append(musketeerNode)
-
 	while len(searchQueue) != 0:
 		currentNode = searchQueue[0]
 		del(searchQueue[0])
@@ -137,17 +140,17 @@ def idaStarIteration(board, musketeerPosition, diamondPosition, bound):
 		neighbours = []
 		for path in paths:
 			heuristicVal = getHeuristicValue(path, diamondPosition)
-			fVal = heuristicVal + currentGVal + 1
-			if fVal > bound:
+			pathNode = Node(path, heuristicVal, currentGVal + 1)
+			if pathNode.fVal > bound:
 				# Neighbouring node has greater f value. Don't explore it
 				# in this search iteration.
 				if nextBound == -1:
 					# Remember to start with the next higher f value in next
 					# iteration if goal isn't found in this iteration.
-					nextBound = fVal
+					nextBound = pathNode.fVal
 				continue
 			visited[path[0]][path[1]] = [row, col]
-			neighbours.append(Node(path, heuristicVal, currentGVal+1))
+			neighbours.append(pathNode)
 
 		# Append to the front of the queue.
 		searchQueue = neighbours + searchQueue
@@ -155,12 +158,15 @@ def idaStarIteration(board, musketeerPosition, diamondPosition, bound):
 
 	if goalFound:
 		shortestPath = \
-			getShortestPath( visited, musketeerPosition, diamondPosition)
+			getShortestPath(visited, musketeerPosition, diamondPosition)
 
 	return (exploredNodes, iterativeSearchQueue, shortestPath, nextBound)
 
 def getNodePositionsFromQueue(queue):
 	""" Return the positions of the node presently in the queue.
+
+	Extracts position from each Node object in the queue and puts in
+	a list.
 
 	:param queue: The queue.
 	:return: A list of positions of the node in the queue.
@@ -192,7 +198,7 @@ def getHeuristicValue(position, diamondPosition):
 
 def numberOfPaths(board, pos, visited):
 	""" Return different possible paths from a given position.
-
+	todo
 	Return the different possible paths that can be taken from a
 	given position excluding the one's which are already taken.
 

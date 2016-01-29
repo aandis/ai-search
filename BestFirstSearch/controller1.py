@@ -65,6 +65,7 @@ def bestFirstSearch(board, musketeerPosition, diamondPosition):
 
 	:param board: The game board.
 	:param musketeerPosition: The [row, col] of musketeer on the board.
+	:param diamondPosition: The [row, col] of diamond on the board.
 	:returns: A tuple containing exploredNodes, searchQueue, shortestPath.
 
 	"""

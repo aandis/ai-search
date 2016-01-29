@@ -32,7 +32,7 @@ class Node(object):
 		return cmp(selfFVal, otherFVal)
 
 def singleAgentSearch(board):
-	""" Wrapper method for bestFirstSearch which calls bestFirstSearch for 
+	""" Wrapper method for aStarSearch which calls aStarSearch for 
 	each musketeer on the board and keeps track of the one which
 	finds the diamond in shortest number of steps.
 
@@ -55,23 +55,24 @@ def singleAgentSearch(board):
 
 	for i in range(len(musketeerPositions)):
 		(newExploredNodes, newSearchQueue, newShortestPath) = \
-			bestFirstSearch(board, musketeerPositions[i], diamondPosition)
+			aStarSearch(board, musketeerPositions[i], diamondPosition)
 
-        if  shortestPath == [] \
-        or  (
+		if  shortestPath == [] \
+		or  (
 				len(newShortestPath) < len(shortestPath) \
 				and len(newShortestPath) > 0
-            ):
+			):
 			(exploredNodes, searchQueue, shortestPath) = \
 				(newExploredNodes, newSearchQueue, newShortestPath)
 
 	return (exploredNodes,searchQueue,shortestPath)
 
-def bestFirstSearch(board, musketeerPosition, diamondPosition):
-	""" Perform a best first search on the game board.
+def aStarSearch(board, musketeerPosition, diamondPosition):
+	""" Perform A* search on the game board.
 
 	:param board: The game board.
 	:param musketeerPosition: The [row, col] of musketeer on the board.
+	:param diamondPosition: The [row, col] of diamond on the board.
 	:returns: A tuple containing exploredNodes, searchQueue, shortestPath.
 
 	"""
