@@ -86,7 +86,6 @@ def bfsSearch(board, musketeerPosition):
 	if goalFound:
 		shortestPath = getShortestPath(visited, musketeerPosition, [x, y])
 		b = getShortestPathRecursive(visited, musketeerPosition, [x, y])
-		assert shortestPath == b # becuase why not?
 
 	return (exploredNodes, iterativeSearchQueue, shortestPath)
 

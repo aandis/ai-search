@@ -98,7 +98,6 @@ def dfsSearch(board, musketeerPosition):
 	if goalFound:
 		shortestPath = getShortestPath(visited, musketeerPosition, [row, col])
 		b = getShortestPathRecursive(visited, musketeerPosition, [row, col])
-		assert shortestPath == b # becuase why not?
 
 	return (exploredNodes, iterativeSearchQueue, shortestPath)
 
